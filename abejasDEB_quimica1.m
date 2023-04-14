@@ -1,7 +1,7 @@
 clear all
 format longG
 % Numero de fuentes
-Nf = 50;
+Nf = 80;
 % Numero de variables
 Nvar = 8;
 % Arreglo de tamaño Nvar con los limites inferiores correspondientes
@@ -9,7 +9,9 @@ Li = [100 1000 1000 10 10 10 10 10];
 % Arreglo de tamaño Nvar con los limites superiores correspondientes
 Ls = [10000 10000 10000 1000 1000 1000 1000 1000];
 %Numero de iteraciones del genetico
-Niter = 3000000;
+Niter = 300000;
+% Factor de recombinacion 
+MR = 0.3;
 
 limite = round(Niter / (2*Nf));
 
@@ -35,8 +37,12 @@ for p=1:Niter
         posible = zeros(1,Nvar);
         k = asignacion(i);
         for j=1:Nvar
-            phi = -1 + 2 * rand();
-            posible(j) = ajustar(fuentes(i,j) + phi*(fuentes(i,j)-fuentes(k,j)), Li(j), Ls(j));
+            if rand() < MR
+                posible(j) = fuentes(i,j);
+            else
+                phi = -1 + 2 * rand();
+                posible(j) = ajustar(fuentes(i,j) + phi*(fuentes(i,j)-fuentes(k,j)), Li(j), Ls(j));
+            end
         end
         FOposible = funcionObjetivo(posible);
         g = restdes(posible);
@@ -87,22 +93,23 @@ for p=1:Niter
             k = randi([1, Nf]);
             temp = zeros([1, Nvar]);
             for j = 1:Nvar
-                phi = -1 + 2 * rand();
-                temp(j) = fuentes(i,j) + phi * (fuentes(k,j) - fuentes(i,j)) ...
-                + (1-phi) * (fuentes(bindex,j) - fuentes(i,j));
-                temp(j) = ajustar(temp(j), Li(j), Ls(j));
+                if rand() < MR
+                    phi = -1 + 2 * rand();
+                    temp(j) = ajustar(fuentes(i,j) + phi * (fuentes(k,j) - fuentes(i,j)) ...
+                    + (1-phi) * (fuentes(bindex,j) - fuentes(i,j)),Li(j),Ls(j));
+                else
+                    temp(j) = crearPob(Li(j),Ls(j),1,1);
+                end
             end
-            fuentes(i,:) = temp;
-            FO(i) = funcionObjetivo(fuentes(i,:));
             g = restdes(fuentes(i,:));
             h = restigu(fuentes(i,:));
             S(i) = SVR(g, h);
         end
     end
     
-    fuentes(bindex,:);
-    FO(bindex);
-    S(bindex);
+    fuentes(bindex,:)
+    FO(bindex)
+    S(bindex)
 end
 
 fuentes(bindex,:)

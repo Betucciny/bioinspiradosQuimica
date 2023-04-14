@@ -8,8 +8,10 @@ Nvar = 2;
 Li = [0.00001 0.00001];
 % Arreglo de tamaño Nvar con los limites superiores correspondientes
 Ls = [16 16];
-%Numero de iteraciones del genetico
-Niter = 30000;
+% Numero de iteraciones del genetico
+Niter = 100000;
+% Factor de recombinacion 
+MR = 0.6;
 
 limite = round(Niter / (2*Nf));
 
@@ -35,8 +37,12 @@ for p=1:Niter
         posible = zeros(1,Nvar);
         k = asignacion(i);
         for j=1:Nvar
-            phi = -1 + 2 * rand();
-            posible(j) = ajustar(fuentes(i,j) + phi*(fuentes(i,j)-fuentes(k,j)), Li(j), Ls(j));
+            if rand() < MR
+                posible(j) = fuentes(i,j);
+            else
+                phi = -1 + 2 * rand();
+                posible(j) = ajustar(fuentes(i,j) + phi*(fuentes(i,j)-fuentes(k,j)), Li(j), Ls(j));
+            end
         end
         FOposible = funcionObjetivo(posible);
         g = restdes(posible);
@@ -87,11 +93,14 @@ for p=1:Niter
             k = randi([1, Nf]);
             temp = zeros([1, Nvar]);
             for j = 1:Nvar
-                phi = -1 + 2 * rand();
-                temp(j) = fuentes(i,j) + phi * (fuentes(k,j) - fuentes(i,j)) ...
-                + (1-phi) * (fuentes(bindex,j) - fuentes(i,j));
+                if rand() < MR
+                    phi = -1 + 2 * rand();
+                    temp(j) = ajustar(fuentes(i,j) + phi * (fuentes(k,j) - fuentes(i,j)) ...
+                    + (1-phi) * (fuentes(bindex,j) - fuentes(i,j)),Li(j),Ls(j));
+                else
+                    temp(j) = crearPob(Li(j),Ls(j),1,1);
+                end
             end
-            fuentes(i,:) = ajustar(temp, Li, Ls);
             g = restdes(fuentes(i,:));
             h = restigu(fuentes(i,:));
             S(i) = SVR(g, h);

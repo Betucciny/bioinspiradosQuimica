@@ -1,9 +1,9 @@
 clear all
 format longG
 % Ireaciones
-g_max = 120000000;
+g_max = 1200000;
 % Harmony numbers
-NH = 50;
+NH = 40;
 % Numero de variables
 Nvar = 8;
 % Arreglo de tamaño Nvar con los limites inferiores correspondientes
@@ -98,7 +98,7 @@ function s = SVR(g, h)
         s = s + max([0 g(i)]);
     end
     for i = 1:size(h,2)
-        s = s + max([0 abs(h(i))]);
+        s = s + max([0 abs(h(i))-0.00001]);
     end
 end
 

@@ -8,13 +8,13 @@ Li = [100 1000 1000 10 10 10 10 10];
 % Arreglo de tamaño Nvar con los limites superiores correspondientes
 Ls = [10000 10000 10000 1000 1000 1000 1000 1000];
 %Numero de generaciones del genetico
-Ngen = 50000;
+Ngen = 500000;
 % Inercia
-W = 0.4;
+W = 0.8;
 % Cognitivo
-c1 = 0.5;
+c1 = 0.1;
 % Social
-c2 = 1.9;
+c2 = 0.1;
 
 rng('shuffle');
 colFo = Nvar + 1;
@@ -94,9 +94,9 @@ for p = 1:Ngen
     vel = newvel;
     pob = newpob;
 
-    gbest;
-    gbestFO;
-    gbestSVR;
+    gbest
+    gbestFO
+    gbestSVR
 
 end
 
