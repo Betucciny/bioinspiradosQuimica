@@ -1,9 +1,9 @@
 clear all
 format longG
 % Ireaciones
-g_max = 1200000;
+g_max = 120000000;
 % Harmony numbers
-NH = 80;
+NH = 50;
 % Numero de variables
 Nvar = 8;
 % Arreglo de tamaño Nvar con los limites inferiores correspondientes
@@ -13,9 +13,9 @@ Ls = [10000 10000 10000 1000 1000 1000 1000 1000];
 % Acceptance rate
 rac = 0.9;
 % Pitch adjust rate
-rpa = 0.8;
+rpa = 0.1;
 % Intelligent acceptance
-ria = 0.5;
+ria = 0.05;
 % Factor para cambiar bw
 a = 1;
 
@@ -64,9 +64,9 @@ for g = 1:g_max
         windex = indicePeor(FO, S, NH);
         bindex = indiceMejor(FO, S, NH);
     end
-    harmonies(bindex, :)
-    FO(bindex)
-    S(bindex)
+    harmonies(bindex, :);
+    FO(bindex);
+    S(bindex);
 end
 
 harmonies(bindex, :)

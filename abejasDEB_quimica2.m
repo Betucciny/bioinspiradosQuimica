@@ -3,13 +3,13 @@ format longG
 % Numero de fuentes
 Nf = 100;
 % Numero de variables
-Nvar = 6;
+Nvar = 2;
 % Arreglo de tamaño Nvar con los limites inferiores correspondientes
-Li = [0 0 0 0 0.00001 0.00001];
+Li = [0.00001 0.00001];
 % Arreglo de tamaño Nvar con los limites superiores correspondientes
-Ls = [1 1 1 1 16 16];
+Ls = [16 16];
 %Numero de iteraciones del genetico
-Niter = 300000;
+Niter = 30000;
 
 limite = round(Niter / (2*Nf));
 
@@ -26,9 +26,8 @@ for i = 1:Nf
     h = restigu(fuentes(i,:));
     S(i) = SVR(g, h);
 end
-best = fuentes(1,:);
-bestFO = FO(1);
-bestS = S(1);
+
+bindex = indiceMejor(FO, S, Nf);
 
 for p=1:Niter
     asignacion = randperm(Nf);
@@ -37,7 +36,7 @@ for p=1:Niter
         k = asignacion(i);
         for j=1:Nvar
             phi = -1 + 2 * rand();
-            posible(j) = ajustar(fuentes(i,j) + phi*(fuentes(i,j)-fuentes(k,j)), Li(j), Ls(j)); 
+            posible(j) = ajustar(fuentes(i,j) + phi*(fuentes(i,j)-fuentes(k,j)), Li(j), Ls(j));
         end
         FOposible = funcionObjetivo(posible);
         g = restdes(posible);
@@ -52,15 +51,16 @@ for p=1:Niter
             L(i) = L(i) + 1;
         end
     end
-    
-    %Asignacion de abejas al azar (todas las abejas con una fuente)
-    asignacion = randperm(Nf);
+
+    %     Por torneo tomamos la mejor solucion
+    bindex = indiceMejor(FO, S, Nf);
+
     for i=1:Nf
         posible = zeros(1,Nvar);
-        k = asignacion(i);
+        k = bindex;
         for j=1:Nvar
             phi = -1 + 2 * rand();
-            posible(j) = ajustar(fuentes(i,j) + phi*(fuentes(i,j)-fuentes(k,j)), Li(j), Ls(j)); 
+            posible(j) = ajustar(fuentes(i,j) + phi*(fuentes(i,j)-fuentes(k,j)), Li(j), Ls(j));
         end
         FOposible = funcionObjetivo(posible);
         g = restdes(posible);
@@ -75,65 +75,66 @@ for p=1:Niter
             L(i) = L(i) + 1;
         end
     end
-    
+    bindex = indiceMejor(FO, S, Nf);
 
-    for i=1:Nf
-        if DEB(FO(i), S(i), bestFO, bestS)
-            best = fuentes(i,:);
-            bestFO = FO(i);
-            bestS = S(i);
-        end
-    end
-
-
+%     Vuelo inteligente
     for i=1:Nf
         if L(i) > limite
             L(i) = 0;
-%             if all(fuentes(i,:) == best)
-%                 p
-%                 continue
-%             end
-            fuentes(i,:) = crearPob(Li,Ls, 1, Nvar);
+            if i == bindex
+                continue
+            end
+            k = randi([1, Nf]);
+            temp = zeros([1, Nvar]);
+            for j = 1:Nvar
+                phi = -1 + 2 * rand();
+                temp(j) = fuentes(i,j) + phi * (fuentes(k,j) - fuentes(i,j)) ...
+                + (1-phi) * (fuentes(bindex,j) - fuentes(i,j));
+            end
+            fuentes(i,:) = ajustar(temp, Li, Ls);
             g = restdes(fuentes(i,:));
             h = restigu(fuentes(i,:));
             S(i) = SVR(g, h);
         end
     end
-
+    
+    fuentes(bindex,:)
+    FO(bindex)
+    S(bindex)
 end
 
-bestFO
-bestS
+fuentes(bindex,:)
+FO(bindex)
+S(bindex)
+
 
 function FO = funcionObjetivo(p)
-    FO = -p(4);
+k1 = 0.09755988;
+k2 = 0.99*k1;
+k3 = 0.0391908;
+k4 = 0.9*k3;
+numerador = k2*p(1)*k3*p(2) + k1*p(1)+k2*p(2);
+denominador = (1+k3*p(1))*(1+k2*p(2)+k1*p(1))*(1+k4*p(2));
+FO = -numerador/denominador;
 end
 
 function g = restdes(p)
-    g = zeros(1,1);
-    g(1) = p(5).^0.5 + p(6).^0.5 - 4;
+g = zeros(1,1);
+g(1) = p(1).^0.5 + p(2).^0.5 - 4;
 end
 
 function h = restigu(p)
-    k1 = 0.09755988;
-    k2 = 0.99*k1;
-    k3 = 0.0391908;
-    k4 = 0.9*k3;
-    h = zeros(1,4);
-    h(1) = p(1) + k1*p(2)*p(5) - 1;
-    h(2) = p(2) - p(1) + k2*p(2)*p(6);
-    h(3) = p(3) + p(1) + k3*p(3)*p(5) - 1; 
-    h(4) = p(4) - p(3) + p(2) - p(1) + k4*p(4)*p(6);
+h = 0;
 end
 
 function s = SVR(g, h)
-    s = 0;
-    for i = 1:size(g,2)
-        s = s + max([0 g(i)]);
-    end
-    for i = 1:size(h,2)
-        s = s + max([0 abs(h(i))-0.00001]);
-    end
+s = 0;
+for i = 1:size(g,2)
+    s = s + max([0 g(i)]);
+end
+for i = 1:size(h,2)
+    s = s + max([0 abs(h(i))-0.00001]);
+end
 end
 
 function mejor1= DEB(FO1, SVR1, FO2, SVR2)
@@ -168,22 +169,31 @@ else
 end
 end
 
-function pob = crearPob(li, ls, Nind, Nvar)
-    pob = zeros(Nind, Nvar);
-    for i=1:Nvar
-        pob(:,i) = li(i) + (ls(i)- li(i))*rand(Nind, 1);
+function bindex = indiceMejor(FO, S, NH)
+bindex = 1;
+for i = 1:NH
+    if DEB(FO(i), S(i), FO(bindex), S(bindex))
+        bindex = i;
     end
+end
+end
+
+function pob = crearPob(li, ls, Nind, Nvar)
+pob = zeros(Nind, Nvar);
+for i=1:Nvar
+    pob(:,i) = li(i) + (ls(i)- li(i))*rand(Nind, 1);
+end
 end
 
 function ajustado = ajustar(valor, li, ls)
-    while true
-        if valor < li
-            valor = 2*li - valor;
-        elseif valor > ls
-            valor = 2*ls - valor;
-        else
-            break
-        end
+while true
+    if valor < li
+        valor = 2*li - valor;
+    elseif valor > ls
+        valor = 2*ls - valor;
+    else
+        break
     end
-    ajustado = valor;
+end
+ajustado = valor;
 end

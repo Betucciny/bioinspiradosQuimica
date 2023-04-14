@@ -2,19 +2,19 @@ clear all
 % Numero de individuos
 Nind = 80;
 % Numero de variables
-Nvar = 6;
+Nvar = 2;
 % Arreglo de tamaño Nvar con los limites inferiores correspondientes
-Li = [0 0 0 0 0.00001 0.00001];
+Li = [0.00001 0.00001];
 % Arreglo de tamaño Nvar con los limites superiores correspondientes
-Ls = [1 1 1 1 16 16];
+Ls = [16 16];
 %Numero de generaciones del genetico
 Ngen = 80000;
 % Inercia
 W = 0.3;
 % Cognitivo
-c1 = 1.4;
+c1 = 1.8;
 % Social
-c2 = 1.9;
+c2 = 1.5;
 
 rng('shuffle');
 
@@ -22,7 +22,7 @@ pob = crearPob(Li, Ls, Nind, Nvar);
 vel = zeros(size(pob));
 
 for j = 1:Nvar
-   vel(:, j) = ones(Nind, 1) * (Li(j) + Ls(j)) / 2;
+%    vel(:, j) = ones(Nind, 1) * (Li(j) + Ls(j)) / 2;
 end
 
 FO = zeros(Nind, 1);
@@ -44,7 +44,7 @@ gbestSVR = S(1);
 
 for i =1:Nind
     if DEB(pbestFO(i), pbestSVR(i), gbestFO, gbestSVR)
-        gbest(1,:) = pbest(i,:);
+        gbest = pbest(i,:);
         gbestFO = pbestFO(i);
         gbestSVR = pbestSVR(i);
     end
@@ -91,9 +91,9 @@ for p = 1:Ngen
     vel = newvel;
     pob = newpob;
 
-    gbest;
-    gbestFO;
-    gbestSVR;
+    gbest
+    gbestFO
+    gbestSVR
 end
 
 
@@ -103,24 +103,22 @@ gbestSVR
 
 
 function FO = funcionObjetivo(p)
-    FO = -p(4);
-end
-
-function g = restdes(p)
-    g = zeros(1,1);
-    g(1) = p(5).^0.5 + p(6).^0.5 - 4;
-end
-
-function h = restigu(p)
     k1 = 0.09755988;
     k2 = 0.99*k1;
     k3 = 0.0391908;
     k4 = 0.9*k3;
-    h = zeros(1,4);
-    h(1) = p(1) + k1*p(2)*p(5) - 1;
-    h(2) = p(2) - p(1) + k2*p(2)*p(6);
-    h(3) = p(3) + p(1) + k3*p(3)*p(5) - 1; 
-    h(4) = p(4) - p(3) + p(2) - p(1) + k4*p(4)*p(6);
+    numerador = k2*p(1)*k3*p(2) + k1*p(1)+k2*p(2);
+    denominador = (1+k3*p(1))*(1+k2*p(2)+k1*p(1))*(1+k4*p(2));
+    FO = -numerador/denominador;
+end
+
+function g = restdes(p)
+    g = zeros(1,1);
+    g(1) = p(1).^0.5 + p(2).^0.5 - 4;
+end
+
+function h = restigu(p)
+    h = 0;
 end
 
 function s = SVR(g, h)

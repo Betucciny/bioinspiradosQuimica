@@ -9,7 +9,7 @@ Li = [100 1000 1000 10 10 10 10 10];
 % Arreglo de tamaño Nvar con los limites superiores correspondientes
 Ls = [10000 10000 10000 1000 1000 1000 1000 1000];
 %Numero de generaciones del genetico
-Ngen = 20000;
+Ngen = 30000;
 %Factor de cruza
 Fc = 0.7;
 %Factor de mutacion
@@ -154,6 +154,15 @@ else
     else
         mejor1 = false;
         return
+    end
+end
+end
+
+function bindex = indiceMejor(FO, S, NH)
+bindex = 1;
+for i = 1:NH
+    if DEB(FO(i), S(i), FO(bindex), S(bindex))
+        bindex = i;
     end
 end
 end
