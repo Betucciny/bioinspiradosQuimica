@@ -65,8 +65,12 @@ for p=1:Niter
         posible = zeros(1,Nvar);
         k = bindex;
         for j=1:Nvar
-            phi = -1 + 2 * rand();
-            posible(j) = ajustar(fuentes(i,j) + phi*(fuentes(i,j)-fuentes(k,j)), Li(j), Ls(j));
+            if rand() < MR
+                posible(j) = fuentes(i,j);
+            else
+                phi = -1 + 2 * rand();
+                posible(j) = ajustar(fuentes(i,j) + phi*(fuentes(i,j)-fuentes(k,j)), Li(j), Ls(j));
+            end
         end
         FOposible = funcionObjetivo(posible);
         g = restdes(posible);
