@@ -40,8 +40,8 @@ for p = 1:Ngen
     % Impresion de resultados
     bindex = indiceMejor(FO, S, Nind);
     poblacion(bindex,:);
-    FO(bindex);
-    S(bindex);
+    FO(bindex)
+    S(bindex)
 
 
     %Generacion de ruido

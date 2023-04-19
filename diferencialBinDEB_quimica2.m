@@ -1,4 +1,5 @@
 clear all
+format longG
 % Numero de individuos
 Nind = 80;
 % Numero de variables
@@ -6,7 +7,7 @@ Nvar = 2;
 % Arreglo de tamaño Nvar con los limites inferiores correspondientes
 Li = [0.00001 0.00001];
 % Arreglo de tamaño Nvar con los limites superiores correspondientes
-Ls = [16 16];
+Ls = [4 6];
 %Numero de generaciones del genetico
 Ngen = 80000;
 %Factor de cruza

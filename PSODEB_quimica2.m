@@ -1,4 +1,5 @@
 clear all
+format longG
 % Numero de individuos
 Nind = 80;
 % Numero de variables
@@ -15,6 +16,7 @@ W = 0.3;
 c1 = 1.8;
 % Social
 c2 = 1.5;
+turb = 0.1;
 
 rng('shuffle');
 
@@ -22,7 +24,7 @@ pob = crearPob(Li, Ls, Nind, Nvar);
 vel = zeros(size(pob));
 
 for j = 1:Nvar
-%    vel(:, j) = ones(Nind, 1) * (Li(j) + Ls(j)) / 2;
+   vel(:, j) = ones(Nind, 1) * (Li(j) + Ls(j)) / 2;
 end
 
 FO = zeros(Nind, 1);
@@ -60,7 +62,8 @@ for p = 1:Ngen
     for i= 1:Nind
         for var = 1:Nvar
             newvel(i, var) = W*vel(i, var) + c1*rand()*(pbest(i,var) - ...
-                pob(i,var)) + c2*rand()*(gbest(1,var) - pob(i,var));
+                pob(i,var)) + c2*rand()*(gbest(1,var) - pob(i,var))...
+                + turb*(2*rand()-1);
             newpob(i, var) = ajustar(pob(i,var) + newvel(i, var), ...
                 Li(var), Ls(var));
         end

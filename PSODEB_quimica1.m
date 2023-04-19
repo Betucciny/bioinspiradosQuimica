@@ -1,6 +1,7 @@
 clear all
+format longG
 % Numero de individuos
-Nind = 40;
+Nind = 30;
 % Numero de variables
 Nvar = 8;
 % Arreglo de tamaño Nvar con los limites inferiores correspondientes
@@ -10,11 +11,12 @@ Ls = [10000 10000 10000 1000 1000 1000 1000 1000];
 %Numero de generaciones del genetico
 Ngen = 500000;
 % Inercia
-W = 0.8;
+W = 0.9;
 % Cognitivo
-c1 = 0.1;
+c1 = 0.8;
 % Social
-c2 = 0.1;
+c2 = 0.6;
+turb = 0.1;
 
 rng('shuffle');
 colFo = Nvar + 1;
@@ -62,8 +64,9 @@ for p = 1:Ngen
 
     for i= 1:Nind
         for var = 1:Nvar
-            newvel(i, var) = W*vel(i, var) + c1*rand()*(pbest(i,var) - ...
-                pob(i,var)) + c2*rand()*(gbest(1,var) - pob(i,var));
+            newvel(i, var) = W*vel(i, var) + c1*rand()*(pbest(i,var) - pob(i,var)) ...
+                + c2*rand()*(gbest(1,var) - pob(i,var)) ...
+                + turb*(2*rand()-1);
             newpob(i, var) = ajustar(pob(i,var) + newvel(i, var), ...
                 Li(var), Ls(var));
         end
@@ -130,7 +133,7 @@ function s = SVR(g, h)
         s = s + max([0 g(i)]);
     end
     for i = 1:size(h,2)
-        s = s + max([0 abs(h(i))]);
+        s = s + max([0 abs(h(i))-0.0001]);
     end
 end
 

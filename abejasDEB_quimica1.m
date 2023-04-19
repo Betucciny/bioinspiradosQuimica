@@ -32,10 +32,12 @@ end
 bindex = indiceMejor(FO, S, Nf);
 
 for p=1:Niter
-    asignacion = randperm(Nf);
     for i=1:Nf
         posible = zeros(1,Nvar);
-        k = asignacion(i);
+        k = randi(Nf);
+        while k == i
+            k = randi(Nf);
+        end
         for j=1:Nvar
             if rand() < MR
                 posible(j) = fuentes(i,j);
@@ -63,7 +65,10 @@ for p=1:Niter
 
     for i=1:Nf
         posible = zeros(1,Nvar);
-        k = bindex;
+        k = randi(Nf);
+        while k == i
+            k = randi(Nf);
+        end
         for j=1:Nvar
             if rand() < MR
                 posible(j) = fuentes(i,j);
@@ -85,6 +90,7 @@ for p=1:Niter
             L(i) = L(i) + 1;
         end
     end
+
     bindex = indiceMejor(FO, S, Nf);
 
 %     Vuelo inteligente
